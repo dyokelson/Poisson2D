@@ -4,15 +4,15 @@
 #include <cublas_v2.h>
 #include <iostream>
 
-void MatrixMatrixMultGPU(float *A, int A_m, int A_n,
-			 float *B, int B_m, int B_n,
-			 float *C);
+void MatrixMatrixMultGPU(double *A, int A_m, int A_n,
+			 double *B, int B_m, int B_n,
+			 double *C);
 
-void MatrixVectorMultGPU(float *A, int A_m, int A_n,
-			 float *x, int x_m,
-			 float *y);
+void MatrixVectorMultGPU(double *A, int A_m, int A_n,
+			 double *x, int x_m,
+			 double *y);
 
-void VectorAddGPU(float *u, float *v, float *w, int n);
-void VectorDotGPU(float *u, float *v, float *c, int n);
+void VectorAddGPU(double *u, double *v, double *w, double a, int n);
+void VectorDotGPU(double *u, double *v, double *c, int n);
 
 #endif

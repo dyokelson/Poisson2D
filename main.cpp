@@ -1,4 +1,5 @@
 #include "gpu_operations.h"
+#include "cg.h"
 #include <iostream>
 
 #define M 4
@@ -8,14 +9,14 @@ using namespace std;
 
 int main() {
 	
-	float c;
-	float *A = (float *)malloc(N * M * sizeof(float));
-	float *C = (float *)malloc(N * M * sizeof(float));
-	float *u = (float *)malloc(N * sizeof(float));
-	float *v = (float *)malloc(N * sizeof(float));
-	float *w = (float *)malloc(N * sizeof(float));
-	float *x = (float *)malloc(N * sizeof(float));
-	float *y = (float *)malloc(N * sizeof(float));
+	double c;
+	double *A = (double *)malloc(N * M * sizeof(double));
+	double *C = (double *)malloc(N * M * sizeof(double));
+	double *u = (double *)malloc(N * sizeof(double));
+	double *v = (double *)malloc(N * sizeof(double));
+	double *w = (double *)malloc(N * sizeof(double));
+	double *x = (double *)malloc(N * sizeof(double));
+	double *y = (double *)malloc(N * sizeof(double));
 
 	for (int i = 0; i < N; i++) {	
 		for (int j = 0; j < N; j++) {
@@ -52,5 +53,7 @@ int main() {
 		} 
 		cout << endl;
 	}
+
+	// TODO: Setup for CG and test/experiment here (Dewi)
 
 }
