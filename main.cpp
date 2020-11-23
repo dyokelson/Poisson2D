@@ -1,6 +1,6 @@
+#include <iostream>
 #include "gpu_operations.h"
 #include "cg.h"
-#include <iostream>
 
 #define M 4
 #define N 4
@@ -30,13 +30,13 @@ int main() {
 	x[3] = 1;
 
 	cout << "Vector Add:" << endl;
-	VectorAddGPU(u, v, w, N);		
+	VectorAddGPU(u, v, -1.0, w, N);		
 	for (int i = 0; i < N; i++) {
 		cout << w[i] << endl;
 	}
 
 	cout << endl << "Vector Dot:" << endl;
-	VectorDotGPU(u, v, &c, N);	
+	c = VectorDotGPU(u, v, N);	
 	cout << c << endl;
 
 	cout << endl << "MatrixVector Mult:" << endl;

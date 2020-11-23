@@ -53,7 +53,7 @@ void MatrixMatrixMultGPU(double *A, int A_m, int A_n, double *B, int B_m, int B_
 
 	const double alpha = 1.0f;
 	const double beta = 0.0f;
-	cublasSgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, 
+	cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, 
 			A_m, B_n, A_n, &alpha, d_A, 
 			A_m, d_B, A_n, &beta , d_C, A_n);
 
@@ -103,7 +103,7 @@ void MatrixVectorMultGPU(double *A, int A_m, int A_n, double *x, int x_m, double
 
 	const double alpha = 1.0f;
 	const double beta = 0.0f;	
-	cublasSgemv(handle, CUBLAS_OP_T, A_m, A_n, &alpha, d_A, A_m, d_x, 1, &beta, d_y, 1);
+	cublasDgemv(handle, CUBLAS_OP_T, A_m, A_n, &alpha, d_A, A_m, d_x, 1, &beta, d_y, 1);
 	
 	cudaMemcpy(y, d_y, A_m * sizeof(double), cudaMemcpyDeviceToHost);
 	
@@ -114,10 +114,10 @@ void MatrixVectorMultGPU(double *A, int A_m, int A_n, double *x, int x_m, double
 	cudaFree(d_y);
 }
 
-__global__ void VectAdd(double *u, double *v, double *w, int n) {
+__global__ void VectAdd(double *u, double *v, double a, double *w, int n) {
 	int i = threadIdx.x;
 	if (i < n) {
-		w[i] = u[i] + v[i];
+		w[i] = u[i] + (a*v[i]);
 	}
 }
 
@@ -144,8 +144,7 @@ void VectorAddGPU(double *u, double *v, double a, double *w, int n) {
 	cudaMemcpy(d_v, v, memsize, cudaMemcpyHostToDevice);	
 	cudaMemcpy(d_w, w, memsize, cudaMemcpyHostToDevice);
 
-    //TODO: add in multiplying a and v (so we can subtract) - or if we create a new subtract fn that's fine too (Cameron)
-	VectAdd<<<1, n>>>(d_u, d_v, d_w, n);
+	VectAdd<<<1, n>>>(d_u, d_v, a, d_w, n);
 
 	cudaMemcpy(w, d_w, memsize, cudaMemcpyDeviceToHost);
 
@@ -154,7 +153,7 @@ void VectorAddGPU(double *u, double *v, double a, double *w, int n) {
 	cudaFree(d_w);
 }
 
-void VectorDotGPU(double *u, double *v, double *c, int n) {
+double VectorDotGPU(double *u, double *v, int n) {
 /*
  * TODO: double pointer c, can we change that to just a double? any reason it needs to be a double pointer? (Cameron)
 	This function computes:
@@ -171,6 +170,7 @@ void VectorDotGPU(double *u, double *v, double *c, int n) {
 		VectorDotGPU(h_u, h_v, &h_c, n);
 */
 	double memsize = n * sizeof(double);
+	double *c = (double *)malloc(sizeof(double));
 	double *d_u, *d_v, *d_c;
 
 	cudaMalloc(&d_u, memsize);
@@ -184,7 +184,7 @@ void VectorDotGPU(double *u, double *v, double *c, int n) {
 	cublasCreate(&handle);
 	cublasSetPointerMode(handle, CUBLAS_POINTER_MODE_DEVICE);
 
-	cublasSdot(handle, n, 
+	cublasDdot(handle, n, 
 			d_u, 1, 
 			d_v, 1, 
 			d_c);
@@ -196,5 +196,6 @@ void VectorDotGPU(double *u, double *v, double *c, int n) {
 	cudaFree(d_u);
 	cudaFree(d_v);
 	cudaFree(d_c);
+	return *c;
 }
 

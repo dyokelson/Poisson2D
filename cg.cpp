@@ -5,7 +5,7 @@
 
 
 
-void ConjugateGradient(double *A, int A_m, double *B, double *x, int max_iter, double eps) {
+void ConjugateGradient(double *A, int A_m, int A_n, double *b, double *x, int max_iter, double eps) {
 /*
 	This function computes:
 
@@ -20,46 +20,36 @@ void ConjugateGradient(double *A, int A_m, double *B, double *x, int max_iter, d
 		eps - the tolerance, or very small number that will tell us if it has converged
 */
 
-    // Setup
+    								// initilize
     double residual_old, residual_new = 0.0;
-    double r_k = (double*) malloc(sizeof(double) * A_m);
-    double p_k = (double*) malloc(sizeof(double) * A_m);
-    double a_p = (double*) malloc(sizeof(double) * A_m);
-
-    // Calculate inital residual, b-Ax with initial guess
-    MatrixVectorMultGPU(A, A_m, A_n, x, A_m, a_p);
-    VectorAddGPU(b, a_p, -1.0, r_k, A_m);
-    VectorDotGPU(r_k, r_k, residual_old, A_m);
-
-    memcpy(p_k, r_k, sizeof(dobule)* A_m);
-
     double d, alpha, beta = 0.0;
-    // Iterate until converges or max_iter
-    for (int i = 0; i < max_iter; i++) {
-        // A*p
-        MatrixVectorMultGPU(A, A_m, A_n, p_k, A_m, a_p);
-        // d = p^t * A * p
-        VectorDotGPU(p_k, a_p, d, A_m);
-        // alpha = residual / d
-        alpha = residual_old / d;
-        // x_k+1 = x_k + alpha * p_k
-        VectorAddGPU(x_k, p_k, alpha, x_k, A_m);
-        // r_k+1 = r_k - alpha * A * p
-        VectorAddGPU(r_k, a_p, -alpha, r_k, A_m);
-        // calculate new residual
-        VectorDotGPU(r_k, r_k, residual_new, A_m);
+    double *r_k = (double*)malloc(sizeof(double) * A_m);
+    double *p_k = (double*)malloc(sizeof(double) * A_m);
+    double *a_p = (double*)malloc(sizeof(double) * A_m);
 
-        // check for convergence
-        if (sqrt(residual_new) < eps) {
-            break;
+								// Calculate inital residual, b-Ax with initial guess
+    MatrixVectorMultGPU(A, A_m, A_n, x, A_m, a_p);		// a = Ax
+    VectorAddGPU(b, a_p, -1.0, r_k, A_m);			// r = b - a
+    residual_old = VectorDotGPU(r_k, r_k, A_m);			// res_o = dot(r, r)
+    memcpy(p_k, r_k, sizeof(double)* A_m);			// p = r
+
+								// Iterate until converges or max_iter
+    for (int i = 0; i < max_iter; i++) {			// for i:max_iterations:
+        MatrixVectorMultGPU(A, A_m, A_n, p_k, A_m, a_p);  	// 	a = Ap
+        d = VectorDotGPU(p_k, a_p, A_m);			// 	d = dot(p, a)
+        alpha = residual_old / d;				//	alpha = res_o / d
+        VectorAddGPU(x, p_k, alpha, x, A_m);			//	x = x + (alpha * p)
+        VectorAddGPU(r_k, a_p, -alpha, r_k, A_m);		//	r = r - (alpha * a)	
+        residual_new = VectorDotGPU(r_k, r_k, A_m);		//	res_n = dot(r, r)
+
+		       						//      check for convergence
+        if (sqrt(residual_new) < eps) {				//	if sqrt(res_n) < eps):
+            break;						//		exit
         }
 
-        // beta = residual_new / residual_old
-        beta = residual_new / residual_old;
-        // p_k+1 = r_k+1 + beta * p_k
-        VectorAddGPU(r_k, p_k, beta, p_k, A_m);
-        // update residual
-        residual_old = residual_new;
+        beta = residual_new / residual_old;			//	beta = res_n / res_o
+        VectorAddGPU(r_k, p_k, beta, p_k, A_m);			//	p = r + (beta * p)
+        residual_old = residual_new;				//	res_o = res_n
 
     }
 }

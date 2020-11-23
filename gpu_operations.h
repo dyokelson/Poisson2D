@@ -12,7 +12,7 @@ void MatrixVectorMultGPU(double *A, int A_m, int A_n,
 			 double *x, int x_m,
 			 double *y);
 
-void VectorAddGPU(double *u, double *v, double *w, double a, int n);
-void VectorDotGPU(double *u, double *v, double *c, int n);
+void VectorAddGPU(double *u, double *v, double a, double *w, int n);
+double VectorDotGPU(double *u, double *v, int n);
 
 #endif
