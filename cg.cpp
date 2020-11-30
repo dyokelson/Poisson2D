@@ -20,7 +20,7 @@ void ConjugateGradient(double *A, int A_m, int A_n, double *b, double *x, int ma
 		eps - the tolerance, or very small number that will tell us if it has converged
 */
 
-    								// initilize
+    								// initialize
     double residual_old, residual_new = 0.0;
     double d, alpha, beta = 0.0;
     double *r_k = (double*)malloc(sizeof(double) * A_m);

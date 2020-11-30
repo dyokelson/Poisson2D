@@ -10,11 +10,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="aff79be5-e1bf-43fe-b461-1cb3e97a3fbc" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/cg.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cg.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gpu_operations.cu" beforeDir="false" afterPath="$PROJECT_DIR$/gpu_operations.cu" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gpu_operations.h" beforeDir="false" afterPath="$PROJECT_DIR$/gpu_operations.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cg.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/cg.cpp" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -61,7 +58,11 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1605741299471</updated>
-      <workItem from="1605741301207" duration="2478000" />
+      <workItem from="1605741301207" duration="2717000" />
+      <workItem from="1606092723325" duration="2631000" />
+      <workItem from="1606106298872" duration="363000" />
+      <workItem from="1606321721848" duration="408000" />
+      <workItem from="1606765536355" duration="4451000" />
     </task>
     <servers />
   </component>
@@ -73,7 +74,9 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
           </value>
         </entry>
       </map>
