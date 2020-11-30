@@ -10,8 +10,8 @@ Instructions for Talapas:
 
 	3. compile program:
 
-		nvcc main.cpp gpu_operations.cu -o compute -lcublas
+		make
 
 	4. run program: 
 
-		./compute
+		./poisson A.txt b.txt ans.txt
