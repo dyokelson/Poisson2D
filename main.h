@@ -6,7 +6,7 @@
 #define POISSON2D_MAIN_H
 
 
-void usage(int argc, char** argv);
+void usage(int argc, char* argv[]);
 void read_vector(char* fileName, double **vector, int *vecSize);
 void test_gpu_operations();
 
