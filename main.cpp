@@ -126,7 +126,6 @@ void read_vector(char* fileName, double** vector, int* vecSize)
     double* vector_ = (double*) malloc(sizeof(double) * vector_size);
 
     fp = fopen(fileName, "r");
-    assert(fp);
     // first read the first line to get the # elements
     fgets(line, MAX_NUM_LENGTH, fp);
 
@@ -138,7 +137,6 @@ void read_vector(char* fileName, double** vector, int* vecSize)
 
     fclose(fp);
     printf("index: %i, vector_size: %i", index, vector_size);
-    assert(index-1 == vector_size);
 
     *vector = vector_;
     *vecSize = vector_size;
