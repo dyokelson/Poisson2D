@@ -117,7 +117,6 @@ void usage(int argc, char** argv)
 void read_vector(char* fileName, double** vector, int* vecSize)
 {
     FILE* fp = fopen(fileName, "r");
-    assert(fp);
     char line[MAX_NUM_LENGTH];
     fgets(line, MAX_NUM_LENGTH, fp);
     fclose(fp);
