@@ -1,4 +1,11 @@
 using LinearAlgebra
+using SparseArrays
+
+# define f(x, y)
+function f(x, y)
+    return -6
+end
+using LinearAlgebra
 
 # define f(x, y)
 function f(x, y)
@@ -17,14 +24,14 @@ N = 1000
 B = zeros(N,N)[:]
 
 b_io = open("b.txt", "w")
-println(ans_io, length(B))
+println(b_io, length(B))
 println(b_io, B)
 close(b_io)
 
 
 # generate exact solution, write to file
 N = 1000
-ANS = exact(N,N)
+ANS = zeros(N,N)
 
 for i = 1:N
     for j = 1:N
@@ -32,11 +39,11 @@ for i = 1:N
     end
 end
 
-ANS = ANS[:]
+#ANS .= ANS[:]
 
 ans_io = open("ans.txt", "w")
-println(ans_io, length(ANS))
-println(ans_io, ANS)
+println(ans_io, length(ANS)^2)
+println(ans_io, ANS[:])
 close(ans_io)
 
 
@@ -68,3 +75,6 @@ A_io = open("A.txt", "w")
 println(A_io, (N-1)^2)
 println(A_io, A[:])
 close(A_io)
+
+
+
