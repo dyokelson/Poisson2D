@@ -24,7 +24,7 @@ int main(int argc, char* argv[]) {
     fprintf(stdout, "Vector file name: %s ... ", AName);
     double* A;
     int vector_size;
-    read_vector(vectorName, &A, &vector_size);
+    read_vector(AName, &A, &vector_size);
     fprintf(stdout, "A loaded\n");
 
     /*---- read in input vector b ----*/
@@ -33,7 +33,7 @@ int main(int argc, char* argv[]) {
     fprintf(stdout, "Vector file name: %s ... ", bName);
     double* b;
     int b_size;
-    read_vector(vectorName, &b, &b_size);
+    read_vector(bName, &b, &b_size);
     fprintf(stdout, "b loaded\n");
 
     /*---- read in exact answer vector ans ----*/
@@ -42,7 +42,7 @@ int main(int argc, char* argv[]) {
     fprintf(stdout, "Vector file name: %s ... ", ansName);
     double* ans;
     int ans_size;
-    read_vector(vectorName, &ans, &ans_size);
+    read_vector(ansName, &ans, &ans_size);
     fprintf(stdout, "answer loaded\n");
 
     /*---- create vector for initial guess x (start with 0) ----*/
@@ -108,7 +108,7 @@ void test_gpu_operations() {
 
 void usage(int argc, char** argv)
 {
-    if(argc < 2) {
+    if(argc < 3) {
         fprintf(stderr, "usage: %s <A matrix> <b vector> <ans vector>\n",
                 argv[0]);
         exit(EXIT_FAILURE);

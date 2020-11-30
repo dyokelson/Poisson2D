@@ -24,7 +24,7 @@ ${EXEC}: ${OBJS}
 %.o : %.c
 	$(CC) ${CFLAGS} ${INC} -c $< -o $@ ${LIBS} ${CUDA_LD_FLAGS} ${NVCCINC}
 
-%.o : %.cpp
+%.o : %.cc
 	$(CPP) ${CCFLAGS} ${INC} -c $< -o $@ ${LIBS} ${CUDA_LD_FLAGS} ${NVCCINC}
 
 %.o : %.cu
