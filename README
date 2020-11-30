@@ -14,4 +14,4 @@ Instructions for Talapas:
 
 	4. run program: 
 
-		./poisson A.txt b.txt ans.txt
+		./poisson data/A.txt data/b.txt data/ans.txt
