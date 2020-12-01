@@ -8,7 +8,6 @@
 
 void usage(int argc, char* argv[]);
 void read_vector(char* fileName, double **vector, int *vecSize);
-void test_gpu_operations();
 
 #endif //POISSON2D_MAIN_H
 
