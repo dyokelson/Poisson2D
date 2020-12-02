@@ -56,13 +56,8 @@ end
 
 B = B[:]
 
-<<<<<<< HEAD
-b_io = open("b.txt", "w")
-println(b_io, (N-1)^2)
-=======
 b_io = open("data/b.txt", "w")
 println(b_io, (N-1)^2^2)
->>>>>>> f8dfd2924a0fcfa5c42aaa0560220850ebf41331
 for i = 1:(N-1)^2
     println(b_io, B[i])
 end
