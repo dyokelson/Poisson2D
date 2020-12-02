@@ -16,7 +16,7 @@ int main(int argc, char* argv[]) {
     /*---- test gpu functions ----*/
     test_gpu_operations();
 
-
+    //TODO: fix matrix A (sparse from Julia - maybe make dense?)
     /*---- read in matrix A  ----*/
 /*    char AName[MAX_FILENAME];
     strcpy(AName, argv[1]);
