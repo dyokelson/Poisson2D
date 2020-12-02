@@ -57,7 +57,7 @@ end
 B = B[:]
 
 b_io = open("data/b.txt", "w")
-println(b_io, (N-1)^2^2)
+println(b_io, (N-1)^2)
 for i = 1:(N-1)^2
     println(b_io, B[i])
 end
@@ -74,7 +74,7 @@ for i = 1:N-1
     end
 end
 
-ANS .= ANS[:]
+ANS = ANS[:]
 
 ans_io = open("data/ans.txt", "w")
 println(ans_io, (N-1)^2)
