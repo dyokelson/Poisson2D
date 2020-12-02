@@ -38,7 +38,7 @@ Dyy = (k / Δy^2) * Dyy
 
 A = Dxx + Dyy
 
-A_io = open("A.txt", "w")
+A_io = open("data/A.txt", "w")
 println(A_io, (N-1)^2)
 println(A_io, A[:])
 close(A_io)
@@ -56,8 +56,13 @@ end
 
 B = B[:]
 
+<<<<<<< HEAD
 b_io = open("b.txt", "w")
 println(b_io, (N-1)^2)
+=======
+b_io = open("data/b.txt", "w")
+println(b_io, (N-1)^2^2)
+>>>>>>> f8dfd2924a0fcfa5c42aaa0560220850ebf41331
 for i = 1:(N-1)^2
     println(b_io, B[i])
 end
