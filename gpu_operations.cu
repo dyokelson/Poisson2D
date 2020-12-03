@@ -186,6 +186,7 @@ void ConjugateGradient(double *A, int A_m, int A_n, double *b, double *x, int ma
 
 		       						                                            // Check for convergence
         if (sqrt(residual_new) < eps) {				                            // if sqrt(res_n) < eps):
+            printf("Converged before max iterations! Residual: %f\n", sqrt(residual_new));
             break;						                                        //  exit
         }
 
@@ -196,7 +197,10 @@ void ConjugateGradient(double *A, int A_m, int A_n, double *b, double *x, int ma
     }
     
     cudaMemcpy(x, d_x, A_m * sizeof(double), cudaMemcpyDeviceToHost);
-
+    printf("X Vector:\n");
+    for (int k = 0; k < A_n; k++) {
+        printf("%f\n", x[k]);
+    } 
     cudaFree(d_A);
     cudaFree(d_x);
     cudaFree(d_b);

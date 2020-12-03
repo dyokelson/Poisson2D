@@ -14,27 +14,33 @@ int main(int argc, char* argv[]) {
     usage(argc, argv);
 
     /*---- test gpu functions ----*/
-    test_gpu_operations();
+    //test_gpu_operations();
 
-    //TODO: fix matrix A (sparse from Julia - maybe make dense?)
     /*---- read in matrix A  ----*/
-/*    char AName[MAX_FILENAME];
+    char AName[MAX_FILENAME];
     strcpy(AName, argv[1]);
     fprintf(stdout, "Vector file name: %s ... ", AName);
     double* A;
-    int vector_size;
-    read_vector(AName, &A, &vector_size);
+    int A_dim;
+    read_vector(AName, &A, &A_dim);
     fprintf(stdout, "A loaded\n");
-*/
+    int n = sqrt(A_dim);
+    //for (int i = 0; i < A_dim; i++) {
+    //    printf("%f\n",A[i]);
+    //}
+
     /*---- read in input vector b ----*/
-/*    char bName[MAX_FILENAME];
+    char bName[MAX_FILENAME];
     strcpy(bName, argv[2]);
     fprintf(stdout, "Vector file name: %s ... ", bName);
     double* b;
     int b_size;
     read_vector(bName, &b, &b_size);
     fprintf(stdout, "b loaded\n");
-*/
+
+    //for (int j = 0; j < b_size; j++) {
+    //    printf("%f\n",b[j]);
+    //}
     /*---- read in exact answer vector ans ----*/
 /*    char ansName[MAX_FILENAME];
     strcpy(ansName, argv[3]);
@@ -45,14 +51,22 @@ int main(int argc, char* argv[]) {
     fprintf(stdout, "answer loaded\n");
 */
     /*---- create vector for initial guess x (start with 0) ----*/
-/*    fprintf(stdout, "Creating output vector...");
-    double *x = (double*) malloc(pow(vector_size+2,2) * sizeof(double)); // TODO: correct dims?
-    memset(x, 0, vector_size);
+    fprintf(stdout, "Creating output vector...");
+    double *x = (double*) malloc(b_size * sizeof(double)); 
+    memset(x, 0, b_size);
+    //for (int k = 0; k < b_size; k++) {
+    //    printf("%f\n",x[k]);
+    //}
     fprintf(stdout, "x vector created\n");
-*/
     // TODO: call cg here (once refactored)
-
+    ConjugateGradient(A, n, n, b, x, 2*n, 0.00001);
+    printf("x is: \n");
+    //for (int k = 0; k < b_size; k++) {
+    //    printf("%f\n",x[k]);
+    //}
+        
     // TODO: write out the answer to file so we can plot with JULIA
+
 
     // TODO: additional problems? like non-zero boundary conditions? 
 }
