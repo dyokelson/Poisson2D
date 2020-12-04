@@ -1,6 +1,7 @@
 #include <cublas_v2.h>
 #include <iostream>
 #include "gpu_operations.h"
+#include <helper_cuda.h>
 
 using namespace std;
 
@@ -79,11 +80,12 @@ void MatrixVectorMultGPU(double *d_A, int A_m, int A_n, double *d_x, int x_m, do
 }
 
 __global__ void VectAdd(double *u, double *v, double a, double *w, int n) {
-	int i = threadIdx.x;
+	int i = blockIdx.x * blockDim.x + threadIdx.x ;
 	if (i < n) {
 		w[i] = u[i] + (a*v[i]);
 	}
 }
+
 
 void VectorAddGPU(double *d_u, double *d_v, double a, double *d_w, int n) {
 /*
@@ -99,7 +101,7 @@ void VectorAddGPU(double *d_u, double *d_v, double a, double *d_w, int n) {
 		n - # of elements in u, v, w
 */	
 	
-    VectAdd<<<1, n>>>(d_u, d_v, a, d_w, n);
+    VectAdd<<<8, 256>>>(d_u, d_v, a, d_w, n);
 
 }
 
@@ -121,7 +123,7 @@ double VectorDotGPU(double *d_u, double *d_v, int n) {
 	
     double *d_c;
     double *c = (double *)malloc(sizeof(double));
-	cudaMalloc(&d_c, sizeof(double));
+	checkCudaErrors(cudaMalloc(&d_c, sizeof(double)));
 
 	cublasHandle_t handle;
 	cublasCreate(&handle);
@@ -134,7 +136,7 @@ double VectorDotGPU(double *d_u, double *d_v, int n) {
 
 	cublasDestroy(handle);
 
-	cudaMemcpy(c, d_c, sizeof(double), cudaMemcpyDeviceToHost);
+	checkCudaErrors(cudaMemcpy(c, d_c, sizeof(double), cudaMemcpyDeviceToHost));
 
 	return *c;
 }
@@ -158,35 +160,37 @@ void ConjugateGradient(double *A, int A_m, int A_n, double *b, double *x, int ma
     double residual_old, residual_new, d, alpha, beta;
     double *d_A, *d_x, *d_b, *d_a_p, *d_r_k, *d_p_k; 
 
-	cudaMalloc(&d_A,   A_size * sizeof(double));
-	cudaMalloc(&d_x,   A_m    * sizeof(double));
-    cudaMalloc(&d_b,   A_m    * sizeof(double));
-	cudaMalloc(&d_a_p, A_m    * sizeof(double));	
-    cudaMalloc(&d_r_k, A_m    * sizeof(double));
-    cudaMalloc(&d_p_k, A_m    * sizeof(double));
+	checkCudaErrors(cudaMalloc(&d_A,   A_size * sizeof(double)));
+	checkCudaErrors(cudaMalloc(&d_x,   A_m    * sizeof(double)));
+    checkCudaErrors(cudaMalloc(&d_b,   A_m    * sizeof(double)));
+	checkCudaErrors(cudaMalloc(&d_a_p, A_m    * sizeof(double)));	
+    checkCudaErrors(cudaMalloc(&d_r_k, A_m    * sizeof(double)));
+    checkCudaErrors(cudaMalloc(&d_p_k, A_m    * sizeof(double)));
 
-    cudaMemcpy(d_A, A, A_size * sizeof(double), cudaMemcpyHostToDevice);
-	cudaMemcpy(d_x, x, A_m    * sizeof(double), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_b, b, A_m    * sizeof(double), cudaMemcpyHostToDevice);
+    checkCudaErrors(cudaMemcpy(d_A, A, A_size * sizeof(double), cudaMemcpyHostToDevice));
+	checkCudaErrors(cudaMemcpy(d_x, x, A_m    * sizeof(double), cudaMemcpyHostToDevice));
+    checkCudaErrors(cudaMemcpy(d_b, b, A_m    * sizeof(double), cudaMemcpyHostToDevice));
 
 								                                                // Calculate inital residual, b-Ax with initial guess
-    MatrixVectorMultGPU(d_A, A_m, A_n, d_x, A_m, d_a_p);	                    // a = Ax 
-    VectorAddGPU(d_b, d_a_p, -1.0, d_r_k, A_m);			                        // r = b - a 
+    MatrixVectorMultGPU(d_A, A_m, A_n, d_x, A_m, d_a_p);	                    // ap = Ax 
+    VectorAddGPU(d_b, d_a_p, -1.0, d_r_k, A_m);			                        // r = b - ap 
     residual_old = VectorDotGPU(d_r_k, d_r_k, A_m);			                    // res_o = dot(r, r)
-    cudaMemcpy(d_p_k, d_r_k, A_m * sizeof(double), cudaMemcpyDeviceToDevice);   // p = r
-
+    checkCudaErrors(cudaMemcpy(d_p_k, d_r_k, A_m * sizeof(double), cudaMemcpyDeviceToDevice));   // p = r
                                 								                // Iterate until converges or max_iter
     for (int i = 0; i < max_iter; i++) {			                            // for i:max_iterations:
-        MatrixVectorMultGPU(d_A, A_m, A_n, d_p_k, A_m, d_a_p);                  // 	a = Ap
-        d = VectorDotGPU(d_p_k, d_a_p, A_m);			                        // 	d = dot(p, a)
+        MatrixVectorMultGPU(d_A, A_m, A_n, d_p_k, A_m, d_a_p);                  // 	ap = Ap
+        d = VectorDotGPU(d_p_k, d_a_p, A_m);			                        // 	d = dot(p, ap)
         alpha = residual_old / d;				                                //	alpha = res_o / d
-        VectorAddGPU(d_x, d_p_k, -alpha, d_x, A_m);			                    //	x = x + (alpha * p)
-        VectorAddGPU(d_r_k, d_a_p, -alpha, d_r_k, A_m);		                    //	r = r - (alpha * a)	
+        //printf("Alpha %0.10lf\n", alpha);
+        VectorAddGPU(d_x, d_p_k, alpha, d_x, A_m);			                    //	x = x + (alpha * p)
+        VectorAddGPU(d_r_k, d_a_p, -alpha, d_r_k, A_m);		                    //	r = r - (alpha * ap)	
         residual_new = VectorDotGPU(d_r_k, d_r_k, A_m);		                    //	res_n = dot(r, r)
-
-		       						                                            // Check for convergence
+	       						                                            // Check for convergence
+        //printf("Iterations: %i Residual Old: %0.10lf\n", i, sqrt(residual_old));
+     		       						                                            // Check for convergence
+        //printf("Iterations: %i Residual New: %0.10lf\n", i, sqrt(residual_new));
         if (sqrt(residual_new) < eps) {				                            // if sqrt(res_n) < eps):
-            printf("Converged before max iterations! Residual: %f\n", sqrt(residual_new));
+            printf("Converged in iterations: %i Residual: %0.10lf\n", i, sqrt(residual_new));
             break;						                                        //  exit
         }
 
@@ -197,11 +201,11 @@ void ConjugateGradient(double *A, int A_m, int A_n, double *b, double *x, int ma
     }
     
     cudaMemcpy(x, d_x, A_m * sizeof(double), cudaMemcpyDeviceToHost);
-
+    /* 
     printf("X Vector:\n");
     for (int k = 0; k < A_n; k++) {
         printf("%f\n", x[k]);
-    } 
+    } */
     cudaFree(d_A);
     cudaFree(d_x);
     cudaFree(d_b);

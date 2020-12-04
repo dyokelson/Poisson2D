@@ -1,4 +1,9 @@
 #include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
+#include <fstream>
+#include <string>
+#include <sstream>
 #include "gpu_tests.h" 
 #include "gpu_operations.h"
 #include "main.h"
@@ -19,7 +24,7 @@ int main(int argc, char* argv[]) {
     /*---- read in matrix A  ----*/
     char AName[MAX_FILENAME];
     strcpy(AName, argv[1]);
-    fprintf(stdout, "Vector file name: %s ... ", AName);
+    fprintf(stdout, "Vector file name: %s ...\n ", AName);
     double* A;
     int A_dim;
     read_vector(AName, &A, &A_dim);
@@ -32,7 +37,7 @@ int main(int argc, char* argv[]) {
     /*---- read in input vector b ----*/
     char bName[MAX_FILENAME];
     strcpy(bName, argv[2]);
-    fprintf(stdout, "Vector file name: %s ... ", bName);
+    fprintf(stdout, "Vector file name: %s ...\n ", bName);
     double* b;
     int b_size;
     read_vector(bName, &b, &b_size);
@@ -54,7 +59,7 @@ int main(int argc, char* argv[]) {
     fprintf(stdout, "Creating output vector...");
     double *x = (double*) malloc(b_size * sizeof(double)); 
     for (int k = 0; k < b_size; k++) {
-        x[k] = 0;
+        x[k] = 0.1;
     }
     //for (int k = 0; k < b_size; k++) {
     //    printf("%f\n",x[k]);
@@ -62,13 +67,20 @@ int main(int argc, char* argv[]) {
     fprintf(stdout, "x vector created\n");
     // TODO: call cg here (once refactored)
     ConjugateGradient(A, n, n, b, x, 2*n, 0.00001);
-    printf("x is: \n");
+    //printf("x is: \n");
     //for (int k = 0; k < b_size; k++) {
     //    printf("%f\n",x[k]);
     //}
         
-    // TODO: write out the answer to file so we can plot with JULIA
-
+    // write out the answer to file so we can plot with JULIA
+    //ostringstream outfilename; 
+    //outfilename << "xoutput_" << AName;
+    FILE *fp = fopen("xoutput.txt", "w+");
+    fprintf(fp, "%i\n", b_size);
+    for (int i = 0; i < b_size; i++) {
+        fprintf(fp, "%0.10lf\n", x[i]); 
+    }
+    fclose(fp);
 
     // TODO: additional problems? like non-zero boundary conditions? 
 }
@@ -104,7 +116,7 @@ void read_vector(char* fileName, double** vector, int* vecSize)
     }
 
     fclose(fp);
-    printf("index: %i, vector_size: %i", index, vector_size);
+    printf("index: %i, vector_size: %i\n", index, vector_size);
 
     *vector = vector_;
     *vecSize = vector_size;

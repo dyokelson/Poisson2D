@@ -1,6 +1,7 @@
 using LinearAlgebra
 using SparseArrays
-using Plots
+#using Plots
+using IterativeSolvers
 
 # define F(x, y)
 function F(x, y, k)
@@ -34,8 +35,8 @@ D2 = sparse(1:N-1, 1:N-1, -2*ones(N-1)) +
 Dxx = kron(D2, Iy)
 Dyy = kron(Ix, D2)
 
-Dxx = (k / Δx^2) * Dxx
-Dyy = (k / Δy^2) * Dyy
+Dxx = (-k / Δx^2) * Dxx
+Dyy = (-k / Δy^2) * Dyy
 
 A = Dxx + Dyy
 A_Dense = Matrix(A)
@@ -49,7 +50,6 @@ close(A_io)
 
 
 # generate B, write to file
-#N = 10
 B = zeros(N-1,N-1)
 
 for i = 1:N-1
@@ -70,7 +70,6 @@ close(b_io)
 
 
 # generate exact solution, write to file
-#N = 10
 ANS = zeros(N-1,N-1)
 
 for i = 1:N-1
@@ -87,16 +86,16 @@ for i = 1:(N-1)^2
     println(ans_io, ANS[i])
 end
 close(ans_io)
-#=
 
 #0 = Au + b
 # direct solve
-U = A\-B
+#U = A\B
 # replace U with the cg solve
+U = cg(A,B; log=True)
 
 diff = U - ANS
 @show err = sqrt(diff' * diff) * sqrt(Δx*Δy)
-
+#=
 # plot error, plot exact vs. numeric
 #@show plot(x, y, exact, st=:surface,camera=(-30,30))
 outexact = exact(x[2:N], y[2:N])
