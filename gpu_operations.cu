@@ -173,14 +173,14 @@ void ConjugateGradient(double *A, int A_m, int A_n, double *b, double *x, int ma
     MatrixVectorMultGPU(d_A, A_m, A_n, d_x, A_m, d_a_p);	                    // a = Ax 
     VectorAddGPU(d_b, d_a_p, -1.0, d_r_k, A_m);			                        // r = b - a 
     residual_old = VectorDotGPU(d_r_k, d_r_k, A_m);			                    // res_o = dot(r, r)
-    checkCudaErrors(cudaMemcpy(d_p_k, d_r_k, A_m * sizeof(double), cudaMemcpyDeviceToDevice));   // p = r
+    cudaMemcpy(d_p_k, d_r_k, A_m * sizeof(double), cudaMemcpyDeviceToDevice);   // p = r
 
                                 								                // Iterate until converges or max_iter
     for (int i = 0; i < max_iter; i++) {			                            // for i:max_iterations:
         MatrixVectorMultGPU(d_A, A_m, A_n, d_p_k, A_m, d_a_p);                  // 	a = Ap
         d = VectorDotGPU(d_p_k, d_a_p, A_m);			                        // 	d = dot(p, a)
         alpha = residual_old / d;				                                //	alpha = res_o / d
-        VectorAddGPU(d_x, d_p_k, alpha, d_x, A_m);			                    //	x = x + (alpha * p)
+        VectorAddGPU(d_x, d_p_k, -alpha, d_x, A_m);			                    //	x = x + (alpha * p)
         VectorAddGPU(d_r_k, d_a_p, -alpha, d_r_k, A_m);		                    //	r = r - (alpha * a)	
         residual_new = VectorDotGPU(d_r_k, d_r_k, A_m);		                    //	res_n = dot(r, r)
 
@@ -196,7 +196,8 @@ void ConjugateGradient(double *A, int A_m, int A_n, double *b, double *x, int ma
 
     }
     
-    checkCudaErrors(cudaMemcpy(x, d_x, A_m * sizeof(double), cudaMemcpyDeviceToHost));
+    cudaMemcpy(x, d_x, A_m * sizeof(double), cudaMemcpyDeviceToHost);
+
     printf("X Vector:\n");
     for (int k = 0; k < A_n; k++) {
         printf("%f\n", x[k]);

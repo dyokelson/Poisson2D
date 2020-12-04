@@ -53,7 +53,9 @@ int main(int argc, char* argv[]) {
     /*---- create vector for initial guess x (start with 0) ----*/
     fprintf(stdout, "Creating output vector...");
     double *x = (double*) malloc(b_size * sizeof(double)); 
-    memset(x, 0, b_size);
+    for (int k = 0; k < b_size; k++) {
+        x[k] = 0;
+    }
     //for (int k = 0; k < b_size; k++) {
     //    printf("%f\n",x[k]);
     //}
