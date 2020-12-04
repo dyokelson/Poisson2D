@@ -173,7 +173,7 @@ void ConjugateGradient(double *A, int A_m, int A_n, double *b, double *x, int ma
     MatrixVectorMultGPU(d_A, A_m, A_n, d_x, A_m, d_a_p);	                    // a = Ax 
     VectorAddGPU(d_b, d_a_p, -1.0, d_r_k, A_m);			                        // r = b - a 
     residual_old = VectorDotGPU(d_r_k, d_r_k, A_m);			                    // res_o = dot(r, r)
-    cudaMemcpy(d_p_k, d_r_k, A_m * sizeof(double), cudaMemcpyDeviceToDevice);   // p = r
+    checkCudaErrors(cudaMemcpy(d_p_k, d_r_k, A_m * sizeof(double), cudaMemcpyDeviceToDevice));   // p = r
 
                                 								                // Iterate until converges or max_iter
     for (int i = 0; i < max_iter; i++) {			                            // for i:max_iterations:
@@ -196,7 +196,7 @@ void ConjugateGradient(double *A, int A_m, int A_n, double *b, double *x, int ma
 
     }
     
-    cudaMemcpy(x, d_x, A_m * sizeof(double), cudaMemcpyDeviceToHost);
+    checkCudaErrors(cudaMemcpy(x, d_x, A_m * sizeof(double), cudaMemcpyDeviceToHost));
     printf("X Vector:\n");
     for (int k = 0; k < A_n; k++) {
         printf("%f\n", x[k]);
