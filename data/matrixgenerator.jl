@@ -1,7 +1,7 @@
 using LinearAlgebra
 using SparseArrays
 #using Plots
-using IterativeSolvers
+#using IterativeSolvers
 
 # define F(x, y)
 function F(x, y, k)
@@ -18,7 +18,7 @@ end
 
 # generate A matrix, write to file
 k = 2 # thermal diffusivity constant
-Δx = 0.025
+Δx = 0.0125
 x = 0:Δx:1
 Δy = Δx
 y = 0:Δy:1
@@ -41,7 +41,7 @@ Dyy = (-k / Δy^2) * Dyy
 A = Dxx + Dyy
 A_Dense = Matrix(A)
 
-A_io = open("A_025.txt", "w")
+A_io = open("A_0125.txt", "w")
 println(A_io, ((N-1)^2)*((N-1)^2))
 for i = 1:((N-1)^2)*((N-1)^2)
     println(A_io, A_Dense[i])
@@ -61,7 +61,7 @@ end
 B = B[:]
 
 println(B[1])
-b_io = open("b_025.txt", "w")
+b_io = open("b_0125.txt", "w")
 println(b_io, (N-1)^2)
 for i = 1:(N-1)^2
     println(b_io, B[i])
@@ -80,7 +80,7 @@ end
 
 ANS = ANS[:]
 
-ans_io = open("ans_025.txt", "w")
+ans_io = open("ans_0125.txt", "w")
 println(ans_io, (N-1)^2)
 for i = 1:(N-1)^2
     println(ans_io, ANS[i])
@@ -89,11 +89,29 @@ close(ans_io)
 
 #0 = Au + b
 # direct solve
-#U = A\B
+U = A\B
+check = U-ANS
+@show check_err = sqrt(check' * check) * sqrt(Δx*Δy)
 # replace U with the cg solve
-U = cg(A,B; log=True)
+#U = cg(A,B; log=True)
 
-diff = U - ANS
+open("xoutput.txt") do f
+    n = readline(f)
+    n = parse(Int64, n)
+    global Output = zeros(n)
+    global linect = 0
+
+    while ! eof(f)
+        l = readline(f)
+        l = parse(Float64, l)
+        global linect += 1
+        Output[linect] = l
+    end
+end
+println(size(Output))
+#Output = reshape(Output, (N-1,N-1))
+#println(size(Output))
+diff = Output - ANS
 @show err = sqrt(diff' * diff) * sqrt(Δx*Δy)
 #=
 # plot error, plot exact vs. numeric
