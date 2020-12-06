@@ -4,6 +4,7 @@
 #include <fstream>
 #include <string>
 #include <sstream>
+#include <time.h>
 #include "gpu_tests.h" 
 #include "gpu_operations.h"
 #include "main.h"
@@ -23,23 +24,23 @@ int main(int argc, char* argv[]) {
 
     /*---- read in matrix A  ----*/
     char AName[MAX_FILENAME];
+    double* A;
+    int A_dim, n;
     strcpy(AName, argv[1]);
     fprintf(stdout, "Vector file name: %s ...\n ", AName);
-    double* A;
-    int A_dim;
     read_vector(AName, &A, &A_dim);
     fprintf(stdout, "A loaded\n");
-    int n = sqrt(A_dim);
+    n = sqrt(A_dim);
     //for (int i = 0; i < A_dim; i++) {
     //    printf("%f\n",A[i]);
     //}
 
     /*---- read in input vector b ----*/
     char bName[MAX_FILENAME];
-    strcpy(bName, argv[2]);
-    fprintf(stdout, "Vector file name: %s ...\n ", bName);
     double* b;
     int b_size;
+    strcpy(bName, argv[2]);
+    fprintf(stdout, "Vector file name: %s ...\n ", bName);
     read_vector(bName, &b, &b_size);
     fprintf(stdout, "b loaded\n");
 
@@ -48,25 +49,32 @@ int main(int argc, char* argv[]) {
     //}
     /*---- read in exact answer vector ans ----*/
 /*    char ansName[MAX_FILENAME];
-    strcpy(ansName, argv[3]);
-    fprintf(stdout, "Vector file name: %s ... ", ansName);
     double* ans;
     int ans_size;
+    strcpy(ansName, argv[3]);
+    fprintf(stdout, "Vector file name: %s ... ", ansName);
     read_vector(ansName, &ans, &ans_size);
     fprintf(stdout, "answer loaded\n");
 */
     /*---- create vector for initial guess x (start with 0) ----*/
     fprintf(stdout, "Creating output vector...");
+    srand(time(NULL));
     double *x = (double*) malloc(b_size * sizeof(double)); 
     for (int k = 0; k < b_size; k++) {
-        x[k] = 0.1;
+        x[k] = rand() % 100;
     }
+    fprintf(stdout, "x vector created\n");
     //for (int k = 0; k < b_size; k++) {
     //    printf("%f\n",x[k]);
     //}
-    fprintf(stdout, "x vector created\n");
-    // TODO: call cg here (once refactored)
+    
+    time_t start, end, time_diff;
+    start = time(NULL);
     ConjugateGradient(A, n, n, b, x, 2*n, 0.00001);
+    end = time(NULL);
+
+    time_diff = difftime(end, start);
+    printf("function took %.10f seconds\n", time_diff);
     //printf("x is: \n");
     //for (int k = 0; k < b_size; k++) {
     //    printf("%f\n",x[k]);

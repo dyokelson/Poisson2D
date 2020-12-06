@@ -1,7 +1,7 @@
 #include <cublas_v2.h>
+#include <helper_cuda.h>
 #include <iostream>
 #include "gpu_operations.h"
-#include <helper_cuda.h>
 
 using namespace std;
 
@@ -160,6 +160,9 @@ void ConjugateGradient(double *A, int A_m, int A_n, double *b, double *x, int ma
     double residual_old, residual_new, d, alpha, beta;
     double *d_A, *d_x, *d_b, *d_a_p, *d_r_k, *d_p_k; 
 
+    int res_length = 0;
+    double *resids = (double *)malloc(sizeof(double) * max_iter);
+
 	checkCudaErrors(cudaMalloc(&d_A,   A_size * sizeof(double)));
 	checkCudaErrors(cudaMalloc(&d_x,   A_m    * sizeof(double)));
     checkCudaErrors(cudaMalloc(&d_b,   A_m    * sizeof(double)));
@@ -171,6 +174,7 @@ void ConjugateGradient(double *A, int A_m, int A_n, double *b, double *x, int ma
 	checkCudaErrors(cudaMemcpy(d_x, x, A_m    * sizeof(double), cudaMemcpyHostToDevice));
     checkCudaErrors(cudaMemcpy(d_b, b, A_m    * sizeof(double), cudaMemcpyHostToDevice));
 
+
 								                                                // Calculate inital residual, b-Ax with initial guess
     MatrixVectorMultGPU(d_A, A_m, A_n, d_x, A_m, d_a_p);	                    // ap = Ax 
     VectorAddGPU(d_b, d_a_p, -1.0, d_r_k, A_m);			                        // r = b - ap 
@@ -181,13 +185,12 @@ void ConjugateGradient(double *A, int A_m, int A_n, double *b, double *x, int ma
         MatrixVectorMultGPU(d_A, A_m, A_n, d_p_k, A_m, d_a_p);                  // 	ap = Ap
         d = VectorDotGPU(d_p_k, d_a_p, A_m);			                        // 	d = dot(p, ap)
         alpha = residual_old / d;				                                //	alpha = res_o / d
-        //printf("Alpha %0.10lf\n", alpha);
         VectorAddGPU(d_x, d_p_k, alpha, d_x, A_m);			                    //	x = x + (alpha * p)
         VectorAddGPU(d_r_k, d_a_p, -alpha, d_r_k, A_m);		                    //	r = r - (alpha * ap)	
         residual_new = VectorDotGPU(d_r_k, d_r_k, A_m);		                    //	res_n = dot(r, r)
-	       						                                            // Check for convergence
+
+
         //printf("Iterations: %i Residual Old: %0.10lf\n", i, sqrt(residual_old));
-     		       						                                            // Check for convergence
         //printf("Iterations: %i Residual New: %0.10lf\n", i, sqrt(residual_new));
         if (sqrt(residual_new) < eps) {				                            // if sqrt(res_n) < eps):
             printf("Converged in iterations: %i Residual: %0.10lf\n", i, sqrt(residual_new));
@@ -196,16 +199,21 @@ void ConjugateGradient(double *A, int A_m, int A_n, double *b, double *x, int ma
 
         beta = residual_new / residual_old;			                            // beta = res_n / res_o
         VectorAddGPU(d_r_k, d_p_k, beta, d_p_k, A_m);			                // p = r + (beta * p)
+        resids[res_length] = residual_old;
+        res_length++;
         residual_old = residual_new;				                            // res_o = res_n
 
     }
     
     cudaMemcpy(x, d_x, A_m * sizeof(double), cudaMemcpyDeviceToHost);
-    /* 
-    printf("X Vector:\n");
-    for (int k = 0; k < A_n; k++) {
-        printf("%f\n", x[k]);
-    } */
+
+    //FILE *fp = fopen("residuals.txt", "w+");
+    //fprintf(fp, "%i\n", res_length);
+    //for (int i = 0; i < res_length; i++) {
+        //fprintf(fp, "%0.10lf\n", resids[i]); 
+    //}
+    //fclose(fp);
+    
     cudaFree(d_A);
     cudaFree(d_x);
     cudaFree(d_b);
