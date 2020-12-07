@@ -5,7 +5,6 @@
 #include <string>
 #include <sstream>
 #include <time.h>
-#include "mmio.h"
 #include "gpu_tests.h" 
 #include "gpu_operations.h"
 #include "main.h"
@@ -25,53 +24,50 @@ int main(int argc, char* argv[]) {
 
     /*---- read in sparse matrix A  ----*/
     char matrixName[MAX_FILENAME];
-    strcpy(matrixName, argv[1]);
+    strcpy(matrixName, argv[2]);
     int is_symmetric = 0;
     read_info(matrixName, &is_symmetric);
 
     // Read the sparse matrix and store it in row_ind, col_ind, and val,
-    // also known as co-ordinate format (COO).
     int ret;
     MM_typecode matcode;
-    int m;
-    int n;
+    int m_s;
+    int n_s;
     int nnz;
     int *row_ind;
     int *col_ind;
     double *val;
     fprintf(stdout, "Matrix file name: %s ... ", matrixName);
-    t0 = ReadTSC();
-    ret = mm_read_mtx_crd(matrixName, &m, &n, &nnz, &row_ind, &col_ind, &val,
+    ret = mm_read_mtx_crd(matrixName, &m_s, &n_s, &nnz, &row_ind, &col_ind, &val,
                           &matcode);
     check_mm_ret(ret);
     // expand sparse matrix if symmetric
     if(is_symmetric) {
-        expand_symmetry(m, n, &nnz, &row_ind, &col_ind, &val);
+        expand_symmetry(m_s, n_s, &nnz, &row_ind, &col_ind, &val);
     }
     fprintf(stdout, "Converting COO to CSR...");
     unsigned int* csr_row_ptr = NULL;
     unsigned int* csr_col_ind = NULL;
     double* csr_vals = NULL;
-    t0 = ReadTSC();
-    convert_coo_to_csr(row_ind, col_ind, val, m, n, nnz,
+    convert_coo_to_csr(row_ind, col_ind, val, m_s, n_s, nnz,
                        &csr_row_ptr, &csr_col_ind, &csr_vals);
     fprintf(stdout, "done\n");
 
     /*---- read in dense matrix A  ----*/
-    /*char AName[MAX_FILENAME];
+    char AName[MAX_FILENAME];
     double* A;
     int A_dim, n;
     strcpy(AName, argv[1]);
     fprintf(stdout, "Vector file name: %s ...\n ", AName);
     read_vector(AName, &A, &A_dim);
     fprintf(stdout, "A loaded\n");
-    n = sqrt(A_dim);*/
+    n = sqrt(A_dim);
 
     /*---- read in input vector b ----*/
     char bName[MAX_FILENAME];
     double* b;
     int b_size;
-    strcpy(bName, argv[2]);
+    strcpy(bName, argv[3]);
     fprintf(stdout, "Vector file name: %s ...\n ", bName);
     read_vector(bName, &b, &b_size);
     fprintf(stdout, "b loaded\n");
@@ -95,8 +91,6 @@ int main(int argc, char* argv[]) {
     printf("function took %.10f seconds\n", time_diff);
         
     // write out the answer to file so we can plot with JULIA
-    //ostringstream outfilename; 
-    //outfilename << "xoutput_" << AName;
     FILE *fp = fopen("xoutput_dense.txt", "w+");
     fprintf(fp, "%i\n", b_size);
     for (int i = 0; i < b_size; i++) {
@@ -105,24 +99,36 @@ int main(int argc, char* argv[]) {
     fclose(fp);
 
     fprintf(stdout, "Conjugate Gradient - Sparse (CSR)\n");
-    time_t start, end, time_diff;
     start = time(NULL);
     // TODO update here with sparse CG function call -
-    //ConjugateGradientSparse(row_ind, col_ind, val, m, n, nnz,
-                            &csr_row_ptr, &csr_col_ind, &csr_vals)
+    //ConjugateGradientSparse(row_ind, col_ind, val, m_s, n_s, nnz, &csr_row_ptr, &csr_col_ind, &csr_vals);
     end = time(NULL);
 
     time_diff = difftime(end, start);
     printf("function took %.10f seconds\n", time_diff);
 
     // write out the answer to file so we can plot with JULIA
-    FILE *fp = fopen("xoutput_sparse.txt", "w+");
-    fprintf(fp, "%i\n", b_size);
+    FILE *fp2 = fopen("xoutput_sparse.txt", "w+");
+    fprintf(fp2, "%i\n", b_size);
     for (int i = 0; i < b_size; i++) {
-        fprintf(fp, "%0.10lf\n", x[i]);
+        fprintf(fp2, "%0.10lf\n", x[i]);
     }
-    fclose(fp);
+    fclose(fp2);
 
+}
+
+struct Arrayz {
+    int row; 
+    int column;
+    double value;
+};
+
+//int SortNums(struct Arrayz *a1, struct Arrayz *a2) {
+int SortNums(const void *a1v, const void*a2v) { 
+    struct Arrayz *a1 = (struct Arrayz*)a1v;
+    struct Arrayz *a2 = (struct Arrayz*)a2v; 
+    int res = a1->row - a2->row;
+    return res;
 }
 
 /* This function converts a sparse matrix stored in COO format to CSR format.
@@ -149,7 +155,7 @@ void convert_coo_to_csr(int* row_ind, int* col_ind, double* val,
     // SORT
     struct Arrayz *sortedArrays;
     int size = sizeof(struct Arrayz)*nnz;
-    sortedArrays = malloc(size);
+    sortedArrays = (Arrayz *) malloc(size);
     for (int i = 0; i < nnz; i++) {
         sortedArrays[i].row = row_ind[i];
         sortedArrays[i].column = col_ind[i];
@@ -158,7 +164,7 @@ void convert_coo_to_csr(int* row_ind, int* col_ind, double* val,
     qsort(sortedArrays, nnz, sizeof(struct Arrayz), SortNums);
 
     // convert the rows
-    *csr_row_ptr = malloc(sizeof(int) * (m+1));
+    *csr_row_ptr = (unsigned int *) malloc(sizeof(int) * (m+1));
     int prev_row, cur_row, row_count = 0;
     for (int k = 0; k < n; k++) {
         *(*csr_row_ptr + k) = row_count;
@@ -167,10 +173,8 @@ void convert_coo_to_csr(int* row_ind, int* col_ind, double* val,
         }
     }
     // copy everything else over
-    *csr_col_ind = malloc(sizeof(int) * nnz);
-    //memcpy(*csr_col_ind, col_ind, sizeof(int) * nnz);
-    *csr_vals = malloc(sizeof(double) * nnz);
-    //memcpy(*csr_vals, val, sizeof(double) * nnz);
+    *csr_col_ind = (unsigned int *) malloc(sizeof(int) * nnz);
+    *csr_vals = (double *) malloc(sizeof(double) * nnz);
 
     for (int x = 0; x < nnz; x++) {
         *(*csr_col_ind + x) = sortedArrays[x].column;
@@ -187,8 +191,8 @@ void convert_coo_to_csr(int* row_ind, int* col_ind, double* val,
  * */
 void usage(int argc, char** argv)
 {
-    if(argc < 2) {
-        fprintf(stderr, "usage: %s <A matrix> <b vector>\n",
+    if(argc < 3) {
+        fprintf(stderr, "usage: %s <A dense matrix> <A sparse matrix> <b vector>\n",
                 argv[0]);
         exit(EXIT_FAILURE);
     }
@@ -238,11 +242,8 @@ void expand_symmetry(int m, int n, int* nnz_, int** row_ind, int** col_ind,
     }
 
     int* _row_ind = (int*) malloc(sizeof(int) * (nnz + not_diag));
-    assert(_row_ind);
     int* _col_ind = (int*) malloc(sizeof(int) * (nnz + not_diag));
-    assert(_col_ind);
     double* _val = (double*) malloc(sizeof(double) * (nnz + not_diag));
-    assert(_val);
 
     memcpy(_row_ind, *row_ind, sizeof(int) * nnz);
     memcpy(_col_ind, *col_ind, sizeof(int) * nnz);
@@ -256,7 +257,6 @@ void expand_symmetry(int m, int n, int* nnz_, int** row_ind, int** col_ind,
             index++;
         }
     }
-    assert(index == (nnz + not_diag));
 
     free(*row_ind);
     free(*col_ind);

@@ -5,6 +5,7 @@
 #ifndef POISSON2D_MAIN_H
 #define POISSON2D_MAIN_H
 
+#include "mmio.h"
 
 void usage(int argc, char* argv[]);
 void read_vector(char* fileName, double **vector, int *vecSize);
