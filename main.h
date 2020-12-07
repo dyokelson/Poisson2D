@@ -8,6 +8,13 @@
 
 void usage(int argc, char* argv[]);
 void read_vector(char* fileName, double **vector, int *vecSize);
-
+void expand_symmetry(int m, int n, int* nnz_, int** row_ind, int** col_ind,
+                     double** val);
+void check_mm_ret(int ret);
+void read_info(char* fileName, int* is_sym);
+void convert_coo_to_csr(int* row_ind, int* col_ind, double* val,
+                        int m, int n, int nnz,
+                        unsigned int** csr_row_ptr, unsigned int** csr_col_ind,
+                        double** csr_vals);
 #endif //POISSON2D_MAIN_H
 
