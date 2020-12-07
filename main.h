@@ -4,9 +4,10 @@
 
 #ifndef POISSON2D_MAIN_H
 #define POISSON2D_MAIN_H
-
-#include "mmio.h"
-
+extern "C" {
+    #include "mmio.h"
+    //#include "common.h"
+}
 void usage(int argc, char* argv[]);
 void read_vector(char* fileName, double **vector, int *vecSize);
 void expand_symmetry(int m, int n, int* nnz_, int** row_ind, int** col_ind,
