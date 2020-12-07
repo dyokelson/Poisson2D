@@ -9,6 +9,9 @@
 #include "gpu_operations.h"
 #include "main.h"
 
+#define NUM_TIMERS 2
+#define DENSE_TIME 0
+#define SPARSE_TIME 1
 #define MAX_FILENAME 256
 #define MAX_NUM_LENGTH 100
 
@@ -18,12 +21,20 @@ int main(int argc, char* argv[]) {
 
     /*---- check inputs ----*/
     usage(argc, argv);
+ 
+    /*---- Initialize Timers ----*/
+    double timer[NUM_TIMERS];
+    uint64_t t0;
+    for (unsigned int i = 0; i < NUM_TIMERS; i++) {
+        timer[i] = 0.0;
+    }
+    InitTSC();
 
     /*---- test gpu functions ----*/
     //test_gpu_operations();
 
     /*---- read in sparse matrix A  ----*/
-    char matrixName[MAX_FILENAME];
+    /*char matrixName[MAX_FILENAME];
     strcpy(matrixName, argv[2]);
     int is_symmetric = 0;
     read_info(matrixName, &is_symmetric);
@@ -52,7 +63,7 @@ int main(int argc, char* argv[]) {
     convert_coo_to_csr(row_ind, col_ind, val, m_s, n_s, nnz,
                        &csr_row_ptr, &csr_col_ind, &csr_vals);
     fprintf(stdout, "done\n");
-
+*/
     /*---- read in dense matrix A  ----*/
     char AName[MAX_FILENAME];
     double* A;
@@ -82,13 +93,15 @@ int main(int argc, char* argv[]) {
     fprintf(stdout, "x vector created\n");
 
     fprintf(stdout, "Conjugate Gradient - Dense\n");
-    time_t start, end, time_diff;
-    start = time(NULL);
+    //time_t start, end, time_diff;
+    //start = time(NULL);
+    t0 = ReadTSC();
     ConjugateGradient(A, n, n, b, x, 2*n, 0.00001);
-    end = time(NULL);
+    timer[DENSE_TIME] += ElapsedTime(ReadTSC() - t0);
+    //end = time(NULL);
 
-    time_diff = difftime(end, start);
-    printf("function took %.10f seconds\n", time_diff);
+    //time_diff = difftime(end, start);
+    //printf("function took %.10f seconds\n", time_diff);
         
     // write out the answer to file so we can plot with JULIA
     FILE *fp = fopen("xoutput_dense.txt", "w+");
@@ -99,13 +112,11 @@ int main(int argc, char* argv[]) {
     fclose(fp);
 
     fprintf(stdout, "Conjugate Gradient - Sparse (CSR)\n");
-    start = time(NULL);
+    t0 = ReadTSC();
     // TODO update here with sparse CG function call -
     //ConjugateGradientSparse(row_ind, col_ind, val, m_s, n_s, nnz, &csr_row_ptr, &csr_col_ind, &csr_vals);
-    end = time(NULL);
+    timer[SPARSE_TIME] += ElapsedTime(ReadTSC() -t0);
 
-    time_diff = difftime(end, start);
-    printf("function took %.10f seconds\n", time_diff);
 
     // write out the answer to file so we can plot with JULIA
     FILE *fp2 = fopen("xoutput_sparse.txt", "w+");
@@ -114,7 +125,21 @@ int main(int argc, char* argv[]) {
         fprintf(fp2, "%0.10lf\n", x[i]);
     }
     fclose(fp2);
+    
+    print_time(timer);
 
+    /*----- Free Memory ------*/
+/*    free(csr_row_ptr);
+    free(csr_col_ind);
+    free(csr_vals);
+    free(A);
+    free(b);
+    free(x);
+    free(row_ind);
+    free(col_ind);
+    free(val);
+*/
+    return 0;
 }
 
 struct Arrayz {
@@ -351,3 +376,10 @@ void read_info(char* fileName, int* is_sym)
     fclose(fp);
 }
 
+void print_time(double timer[]) {
+    fprintf(stdout, "Dense Matrix Time\n");
+    fprintf(stdout, "%f\n", timer[DENSE_TIME]);
+    fprintf(stdout, "Sparse Matrix Time\n");
+    fprintf(stdout, "%f\n", timer[SPARSE_TIME]);
+ 
+}

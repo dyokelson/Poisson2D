@@ -6,7 +6,7 @@
 #define POISSON2D_MAIN_H
 extern "C" {
     #include "mmio.h"
-    //#include "common.h"
+    #include "common.h"
 }
 void usage(int argc, char* argv[]);
 void read_vector(char* fileName, double **vector, int *vecSize);
@@ -18,5 +18,6 @@ void convert_coo_to_csr(int* row_ind, int* col_ind, double* val,
                         int m, int n, int nnz,
                         unsigned int** csr_row_ptr, unsigned int** csr_col_ind,
                         double** csr_vals);
+void print_time(double timer[]);
 #endif //POISSON2D_MAIN_H
 
