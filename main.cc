@@ -31,9 +31,6 @@ int main(int argc, char* argv[]) {
     read_vector(AName, &A, &A_dim);
     fprintf(stdout, "A loaded\n");
     n = sqrt(A_dim);
-    //for (int i = 0; i < A_dim; i++) {
-    //    printf("%f\n",A[i]);
-    //}
 
     /*---- read in input vector b ----*/
     char bName[MAX_FILENAME];
@@ -44,18 +41,6 @@ int main(int argc, char* argv[]) {
     read_vector(bName, &b, &b_size);
     fprintf(stdout, "b loaded\n");
 
-    //for (int j = 0; j < b_size; j++) {
-    //    printf("%f\n",b[j]);
-    //}
-    /*---- read in exact answer vector ans ----*/
-/*    char ansName[MAX_FILENAME];
-    double* ans;
-    int ans_size;
-    strcpy(ansName, argv[3]);
-    fprintf(stdout, "Vector file name: %s ... ", ansName);
-    read_vector(ansName, &ans, &ans_size);
-    fprintf(stdout, "answer loaded\n");
-*/
     /*---- create vector for initial guess x (start with 0) ----*/
     fprintf(stdout, "Creating output vector...");
     srand(time(NULL));
@@ -64,9 +49,6 @@ int main(int argc, char* argv[]) {
         x[k] = rand() % 100;
     }
     fprintf(stdout, "x vector created\n");
-    //for (int k = 0; k < b_size; k++) {
-    //    printf("%f\n",x[k]);
-    //}
     
     time_t start, end, time_diff;
     start = time(NULL);
@@ -75,10 +57,6 @@ int main(int argc, char* argv[]) {
 
     time_diff = difftime(end, start);
     printf("function took %.10f seconds\n", time_diff);
-    //printf("x is: \n");
-    //for (int k = 0; k < b_size; k++) {
-    //    printf("%f\n",x[k]);
-    //}
         
     // write out the answer to file so we can plot with JULIA
     //ostringstream outfilename; 
@@ -90,14 +68,13 @@ int main(int argc, char* argv[]) {
     }
     fclose(fp);
 
-    // TODO: additional problems? like non-zero boundary conditions? 
 }
 
 
 void usage(int argc, char** argv)
 {
-    if(argc < 3) {
-        fprintf(stderr, "usage: %s <A matrix> <b vector> <ans vector>\n",
+    if(argc < 2) {
+        fprintf(stderr, "usage: %s <A matrix> <b vector>\n",
                 argv[0]);
         exit(EXIT_FAILURE);
     }
