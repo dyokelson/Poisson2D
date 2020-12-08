@@ -66,7 +66,7 @@ int main(int argc, char* argv[]) {
     timer += ElapsedTime(ReadTSC() - t0);
     
     /*---- write output vector ----*/
-    FILE *fp = fopen("xoutput.txt", "w+");
+    FILE *fp = fopen("data/xoutput.txt", "w+");
     fprintf(fp, "%i\n", b_size);
     for (int i = 0; i < b_size; i++) {
         fprintf(fp, "%0.10lf\n", x[i]); 
@@ -83,8 +83,8 @@ void print_time(double time) {
 
 void usage(int argc, char** argv)
 {
-    if(argc < 3) {
-        fprintf(stderr, "usage: %s <A matrix> <b vector> <ans vector>\n",
+    if(argc < 2) {
+        fprintf(stderr, "usage: %s <A matrix> <b vector>\n",
                 argv[0]);
         exit(EXIT_FAILURE);
     }

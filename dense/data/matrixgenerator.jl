@@ -18,7 +18,7 @@ end
 
 # generate A matrix, write to file
 k = 2 # thermal diffusivity constant
-Δx = 0.05
+Δx = 0.025
 x = 0:Δx:1
 Δy = Δx
 y = 0:Δy:1
@@ -41,7 +41,7 @@ Dyy = (-k / Δy^2) * Dyy
 A = Dxx + Dyy
 A_Dense = Matrix(A)
 
-A_io = open("A_05.txt", "w")
+A_io = open("A_025.txt", "w")
 println(A_io, ((N-1)^2)*((N-1)^2))
 for i = 1:((N-1)^2)*((N-1)^2)
     println(A_io, A_Dense[i])
@@ -61,7 +61,7 @@ end
 B = B[:]
 
 println(B[1])
-b_io = open("b_05.txt", "w")
+b_io = open("b_025.txt", "w")
 println(b_io, (N-1)^2)
 for i = 1:(N-1)^2
     println(b_io, B[i])

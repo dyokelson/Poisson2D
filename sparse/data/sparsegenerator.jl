@@ -15,8 +15,8 @@ end
 
 
 # generate A matrix, write to file
-k = 2 # thermal diffusivity constant
-Δx = 0.001
+k = 2 # thermal diffusivity constanT
+Δx = 0.1
 x = 0:Δx:1
 Δy = Δx
 y = 0:Δy:1
@@ -39,7 +39,7 @@ Dyy = (-k / Δy^2) * Dyy
 A = Dxx + Dyy
 A = sparse(A')
 
-A_io = open("A_001.txt", "w")
+A_io = open("A_1.txt", "w")
 println(A_io, A.m, " ", A.n, " ", last(A.colptr) - 1)
 
 for i = 1:length(A.nzval)
@@ -65,7 +65,7 @@ end
 B = B[:]
 
 println(B[1])
-b_io = open("b_001.txt", "w")
+b_io = open("b_1.txt", "w")
 println(b_io, (N-1)^2)
 for i = 1:(N-1)^2
     println(b_io, B[i])
@@ -82,7 +82,7 @@ for i = 1:N-1
 end
 
 ANS = ANS[:]
-
+#=
 ans_io = open("ans_001.txt", "w")
 println(ans_io, (N-1)^2)
 for i = 1:(N-1)^2
@@ -90,4 +90,24 @@ for i = 1:(N-1)^2
 end
 close(ans_io)
 
+=#
+
+open("xoutput.txt") do f
+    n = readline(f)
+    n = parse(Int64, n)
+    global Output = zeros(n)
+    global linect = 0
+    
+    while !eof(f)
+        l = readline(f)
+        l = parse(Float64, l)
+	global linect += 1
+        Output[linect] = l
+    end
+end
+
+println(size(Output))
+println(size(ANS))
+diff = Output - ANS
+@show err = sqrt(diff' * diff) * sqrt(0.1*0.1)
 
