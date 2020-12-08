@@ -82,7 +82,7 @@ for i = 1:N-1
 end
 
 ANS = ANS[:]
-#=
+
 ans_io = open("ans_001.txt", "w")
 println(ans_io, (N-1)^2)
 for i = 1:(N-1)^2
@@ -90,14 +90,12 @@ for i = 1:(N-1)^2
 end
 close(ans_io)
 
-=#
-
 open("xoutput.txt") do f
     n = readline(f)
     n = parse(Int64, n)
     global Output = zeros(n)
     global linect = 0
-    
+
     while !eof(f)
         l = readline(f)
         l = parse(Float64, l)
@@ -106,8 +104,8 @@ open("xoutput.txt") do f
     end
 end
 
+# Check for convergence
 println(size(Output))
 println(size(ANS))
 diff = Output - ANS
-@show err = sqrt(diff' * diff) * sqrt(0.1*0.1)
-
+@show err = sqrt(diff' * diff) * sqrt(Δx*Δy)

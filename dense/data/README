@@ -10,8 +10,5 @@ Instructions to generate data files:
 
 	3. start julia:
 
-		julia
+		julia matrixgenerator.jl
 
-	4. run program: 
-
-		include("matrixgenerator.jl")

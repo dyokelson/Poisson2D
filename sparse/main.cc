@@ -42,15 +42,6 @@ int main(int argc, char* argv[]) {
     read_vector(bName, &b, &b_size);
     fprintf(stdout, "b loaded\n");
 
-    /*---- read in exact answer vector ans ----*/
-/*    char ansName[MAX_FILENAME];
-    double* ans;
-    int ans_size;
-    strcpy(ansName, argv[3]);
-    fprintf(stdout, "Vector file name: %s ... ", ansName);
-    read_vector(ansName, &ans, &ans_size);
-    fprintf(stdout, "answer loaded\n");
-*/
     /*---- create vector for initial guess x (start with 0) ----*/
     fprintf(stdout, "Creating output vector...");
     srand(time(NULL));

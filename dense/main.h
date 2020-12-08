@@ -1,7 +1,3 @@
-//
-// Created by dewimaharani on 11/30/20.
-//
-
 #ifndef POISSON2D_MAIN_H
 #define POISSON2D_MAIN_H
 

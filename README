@@ -10,8 +10,9 @@ Instructions for Talapas:
 
 	3. compile program:
 
+		cd Poisson2D/dense || cd Poisson2D/sparse
 		make
 
 	4. run program: 
 
-		./poisson data/A.txt data/b.txt data/ans.txt
+		./poisson data/A_1.txt data/b_1.txt

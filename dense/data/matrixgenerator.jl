@@ -1,7 +1,7 @@
 using LinearAlgebra
 using SparseArrays
-#using Plots
-#using IterativeSolvers
+using Plots
+using IterativeSolvers
 
 # define F(x, y)
 function F(x, y, k)
@@ -95,7 +95,7 @@ check = U-ANS
 # replace U with the cg solve
 #U = cg(A,B; log=True)
 
-#=
+
 open("xoutput.txt") do f
     n = readline(f)
     n = parse(Int64, n)
@@ -109,62 +109,18 @@ open("xoutput.txt") do f
         Output[linect] = l
     end
 end
+
+# Check Convergence
 println(size(Output))
 #Output = reshape(Output, (N-1,N-1))
 #println(size(Output))
 diff = Output - ANS
 @show err = sqrt(diff' * diff) * sqrt(Δx*Δy)
-#=
+
+
 # plot error, plot exact vs. numeric
-#@show plot(x, y, exact, st=:surface,camera=(-30,30))
 outexact = exact(x[2:N], y[2:N])
 print(size(outexact))
 @show plot(x[2:N], y[2:N], outexact, st=:surface)
-
-open("UNewOutput.txt") do f
-    n = readline(f)
-    n = parse(Int64, n)
-    global Output = zeros(n)
-    global linect = 0
-
-    while ! eof(f)
-        l = readline(f)
-        l = parse(Float64, l)
-        global linect += 1
-        Output[linect] = l
-    end
-end
-println(size(Output))
-Output = reshape(Output, (9,9))
-println(size(Output))
-x_new = x[2:N]
-y_new = y[2:N]
-#@show Output
-#@show plot(x_new, y_new, Output, st=:surface)
-
-outexact = exact(x[2:N], y[2:N])
-print(size(outexact))
-@show plot(x[2:N], y[2:N], outexact, st=:surface)
-
-
-#=
-p = plot(x, y, exact,label = "exact", color = :red)
-p2 = plot(x, y, Output, label = "approx", shape = :circle, color = :green)
-#ylims!((0,1))
-@show p
-@show p2
-=#
-
-#=
-outexact = exact(x[2:N],y[2:N])
-println(size(outexact))
-p1 = plot(x[2:N], outexact[:,1], label = "exact x", color = :red)
-plot!(x[2:N], Output[:,1], label = "approx x", shape = :circle, color = :green)
-p2 = plot(y[2:N], outexact[1,:], label = "exact y", color = :red)
-plot!(y[2:N], Output[1,:], label = "approx y", shape = :circle, color = :green)
-ylims!((0,1))
-display(p1)
-display(p2)
-=#
-=#
-=#
+# Numeric/Approximate
+@show plot(x[2:N], y[2:N], Output, st=:surface)
